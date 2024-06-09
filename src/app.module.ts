@@ -11,16 +11,24 @@ import { Organizations } from './models/organization.model';
 import { OrganizationsModule } from './organizations/org.module';
 import { Privileges } from './models/privileges.model';
 import { GuardModule } from './guards/guard.module';
+import { ConfigModule } from '@nestjs/config';
+import { PrivilegesModule } from './privileges/privileges.module';
+import { SeedService } from './db/seed.service';
+import { SeedModule } from './db/seed.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal:true
+    }),
     TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '1234',
-      database: 'dax_db',
+      type: process.env.MYSQL_TYPE as any,
+      host: process.env.MYSQL_HOST,
+      port: +process.env.MYSQL_PORT,
+      username: process.env.MYSQL_USERNAME,
+      password: process.env.MYSQL_PASSWORD,
+      database: process.env.MYSQL_DB,
       entities: [
         Users,
         Organizations,
@@ -30,14 +38,17 @@ import { GuardModule } from './guards/guard.module';
       ],
       synchronize: true,
     }),
+    TypeOrmModule.forFeature([Privileges, Roles]),
     AuthModule,
     UsersModule,
     TasksModule,
     RolesModule,
+    SeedModule,
+    PrivilegesModule,
     OrganizationsModule,
     GuardModule
   ],
   controllers: [],
-  providers: [],
+  providers: [SeedService],
 })
 export class AppModule { }

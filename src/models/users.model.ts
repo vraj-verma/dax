@@ -25,8 +25,11 @@ export class Users {
     @Column()
     account_id: string;
 
-    @Column() 
+    @Column()
     role_id: number;
+
+    @Column({ nullable: true })
+    privileged_id?: number;
 
     @Column({ default: null })
     current_org_id: number;

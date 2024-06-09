@@ -45,7 +45,8 @@ export class AuthController {
             password: hash,
             role_id: 1,
             account_id,
-            current_org_id: null
+            current_org_id: null,
+            privileged_id: 1
         }
 
         const response = await this.usersService.create(userPayload);

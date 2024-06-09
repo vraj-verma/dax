@@ -1,4 +1,4 @@
-import { Body, Controller, Request, HttpException, HttpStatus, Post, Res, UseGuards, Get, Query, Param, Put, ParseIntPipe, Delete } from "@nestjs/common";
+import { Body, Controller, Request, HttpException, HttpStatus, Post, Res, UseGuards, Get, Query, Param, Put, ParseIntPipe, Delete, ParseBoolPipe } from "@nestjs/common";
 import { UsersService } from "./users.service";
 
 import { ValidationPipe } from "../pipes/joi-validation.pipe";
@@ -9,6 +9,7 @@ import { JWTAuthGuard } from "../guards/jwt.strategy";
 import { Response } from "express";
 import { Paged } from "../types/types";
 import { OrganizationsService } from "../organizations/org.service";
+import { PrivilegesService } from "../privileges/privileges.service";
 
 @UseGuards(JWTAuthGuard)
 @Controller('users')
@@ -17,6 +18,7 @@ export class UsersController {
         private usersService: UsersService,
         private rolesService: RolesService,
         private orgService: OrganizationsService,
+        private privilegesService: PrivilegesService,
         private util: Utility,
     ) { }
 
@@ -54,13 +56,16 @@ export class UsersController {
 
         const role_id = isRoleAlreadyInDB ? isRoleAlreadyInDB.role_id : await this.rolesService.createRole(payload.role);
 
+        // set privileges
+
         const userPayload = {
             name: payload.name,
             email: payload.email,
             password: hash,
             role_id,
             account_id,
-            current_org_id: payload.orgId
+            current_org_id: payload.orgId,
+            privileged_id: null
         }
 
         const response = await this.usersService.create(userPayload);
@@ -76,7 +81,46 @@ export class UsersController {
 
         res.status(201).json(response);
 
+    }
 
+    @Put('privileges/:id')
+    async addPrivileges(
+        @Request() req,
+        @Res() res: Response,
+        @Param('id', ParseIntPipe) user_id: number,
+        @Body() payload: { create: any, read: any, update: any, delete: any }
+    ) {
+
+        const { account_id } = req.user;
+
+        // transform string in boolean
+        payload.create = payload.create == 'true' ? true : false;
+        payload.read = payload.read == 'true' ? true : false;
+        payload.update = payload.update == 'true' ? true : false;
+        payload.delete = payload.delete == 'true' ? true : false;
+
+        const response = await this.privilegesService.create(payload);
+
+        if (!response) {
+            throw new HttpException(
+                `Failed to create privileges`,
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        const privilege = await this.usersService.assignPrivilegeIdToUser(account_id, user_id, response.privileged_id);
+
+        if (!privilege) {
+            throw new HttpException(
+                `Failed assign privileges to user: ${user_id} either the user doesn't exist or invalid user ID`,
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        res.status(201).json({
+            message: `Privileges assigned to user: ${user_id}`,
+            ...response
+        });
     }
 
     @Get()

@@ -77,10 +77,19 @@ export class UsersService {
         }
     }
 
-    async deleteUserByIds(user_id: any, account_id: string) {
+    async deleteUserByIds(user_id: any, account_id: string): Promise<boolean> {
         try {
             const response = await this.usersRepository.delete({ user_id: In(user_id), account_id });
             return response.affected > 0 ? true : false || null;
+        } catch (error) {
+            throw new Error(`Something went wrong: ${error.message}`);
+        }
+    }
+
+    async assignPrivilegeIdToUser(account_id: string, user_id: number, privileged_id: number): Promise<boolean> {
+        try {
+            const response = await this.usersRepository.update({ account_id, user_id }, { privileged_id });
+            return response.affected > 0 ? true : false;
         } catch (error) {
             throw new Error(`Something went wrong: ${error.message}`);
         }

@@ -13,16 +13,19 @@ export class Privileges {
     @PrimaryGeneratedColumn()
     privileged_id: number;
 
-    @Column()
+    // @Column()
+    // user_id: number;
+
+    @Column({ default: false })
     create?: boolean;
 
     @Column({ default: true })
     read: boolean;
 
-    @Column()
+    @Column({ default: false })
     update?: boolean;
 
-    @Column()
+    @Column({ default: false })
     delete?: boolean;
 
     @CreateDateColumn({ type: 'timestamp' })

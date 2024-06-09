@@ -25,7 +25,13 @@ export class CustomValidation {
         password: joi.string().min(6).max(200).required(),
         account_id: joi.string().optional().allow(null, ''),
         role: joi.string().required().valid(...Object.values(ROLESENUM)),
-        orgId: joi.number().required()
+        orgId: joi.number().required(),
+        privileges: joi.object().keys({
+            create: joi.boolean().required(),
+            read: joi.boolean().required(),
+            update: joi.boolean().required(),
+            delete: joi.boolean().required(),
+        })
     });
 
     static taskSchema = joi.object({

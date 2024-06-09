@@ -6,12 +6,14 @@ import { Users } from "../models/users.model";
 import { RolesModule } from "../roles/roles.module";
 import { Utility } from "../helpers/utils";
 import { OrganizationsModule } from "../organizations/org.module";
+import { PrivilegesModule } from "../privileges/privileges.module";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Users]),
         RolesModule,
-        OrganizationsModule
+        OrganizationsModule,
+        PrivilegesModule
     ],
     providers: [
         UsersService,
