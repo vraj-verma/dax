@@ -46,7 +46,7 @@ export class AuthController {
             role_id: 1,
             account_id,
             current_org_id: null,
-            privileged_id: 1
+            privileged_id: null
         }
 
         const response = await this.usersService.create(userPayload);
@@ -89,12 +89,15 @@ export class AuthController {
             );
         }
 
+        console.log(user,'--------')
+
         const JWTPayload = {
             user_id: user.user_id,
             account_id: user.account_id,
             email: user.email,
             role_id: user.role_id,
-            org_id: user.current_org_id
+            org_id: user.current_org_id,
+            privileged_id: user.privileged_id || null
         }
 
         const token = this.jwtService.sign(JWTPayload);

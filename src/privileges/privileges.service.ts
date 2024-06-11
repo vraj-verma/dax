@@ -13,10 +13,7 @@ export class PrivilegesService {
     async create(payload: { create: any, read: any, update: any, delete: any }): Promise<Privileges> {
         try {
 
-            console.log(payload)
             const response = await this.privilgeRepository.save(payload);
-
-            console.log(response, '+++++++')
             return response as Privileges || null;
         } catch (error) {
             throw new Error(`Something went wrong: ${error.message}`);

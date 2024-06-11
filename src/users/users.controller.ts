@@ -10,6 +10,8 @@ import { Response } from "express";
 import { Paged } from "../types/types";
 import { OrganizationsService } from "../organizations/org.service";
 import { PrivilegesService } from "../privileges/privileges.service";
+import { Role } from "../guards/role.decorator";
+import { RoleGuard } from "../guards/role.guard";
 
 @UseGuards(JWTAuthGuard)
 @Controller('users')
@@ -23,6 +25,7 @@ export class UsersController {
     ) { }
 
 
+    @UseGuards(RoleGuard) 
     @Post()
     async addUser(
         @Request() req,
@@ -83,6 +86,7 @@ export class UsersController {
 
     }
 
+    @UseGuards(RoleGuard)
     @Put('privileges/:id')
     async addPrivileges(
         @Request() req,
@@ -123,6 +127,7 @@ export class UsersController {
         });
     }
 
+    @UseGuards(RoleGuard)
     @Get()
     async getAccountUsers(
         @Request() req,
@@ -166,6 +171,7 @@ export class UsersController {
         res.status(200).json(user);
     }
 
+    @UseGuards(RoleGuard)
     @Get(':id')
     async getUsersInOrganization(
         @Request() req,
@@ -197,6 +203,7 @@ export class UsersController {
         res.status(200).json(usersInAnOrganization);
     }
 
+    @UseGuards(RoleGuard)
     @Get('get-user/:id')
     async getUserById(
         @Request() req,
